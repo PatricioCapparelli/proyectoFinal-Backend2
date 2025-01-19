@@ -5,6 +5,9 @@ import { config as configHandlebars } from "./config/handlebars.config.js";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import MongoStore from "connect-mongo";
+//  2
+import initializePassport  from "./config/passport.config.js";
+import passport from "passport";
 
 import userRoutes from './routes/session.routes.js';
 import viewRoutes from './routes/view.routes.js';
@@ -43,6 +46,10 @@ app.use(
     saveUninitialized: false,
   })
 );
+// 2
+initializePassport()
+app.use(passport.initialize());
+app.use(passport.session())
 
 //routes
 

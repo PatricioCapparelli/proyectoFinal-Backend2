@@ -1,69 +1,90 @@
 import { Router } from "express";
+// 1
 import userModel from "../models/users.model.js";
+import { createHash } from "../utils/bcrypt.js";
+//2
+import passport from "passport";
+
 const router = Router();
 
-router.post("/register", async (req, res) => {
-    const { name, last_name, email, password } = req.body;
+// REGISTER
+router.post("/register",
+    passport.authenticate('register', {
+        failureRedirect: 'failregister',
+        successRedirect: '/login'
+    }),
+);
 
-    try {
-        const userExist = await userModel.findOne({ email: email });
-
-        if (userExist) {
-            return res.status(400).json({ message: `El usuario con el correo ${email} esta registrado` });
-        }
-        await userModel.create({
-            name,
-            last_name,
-            email,
-            password,
-        });
-
-        res.status(201).redirect("/login");
-    } catch (error) {
-        res.status(500).json({ message: "Error interno del servidor", err: error.message });
-    }
-});
-router.post("/login", async (req, res) => {
-    const { email, password } = req.body;
-
-    try {
-        const userExist = await userModel.findOne({ email: email });
-        if (userExist) {
-            if (userExist.password === password) {
-                req.session.user = {
-                    name: userExist.name,
-                    last_name: userExist.last_name,
-                    email: userExist.email,
-                }
-                res.redirect('/profile');
-            } else {
-                res.status(401).send("Contraseña invalida");
-            }
-        }
-
-    } catch (error) {
-        res
-            .status(500)
-            .json({ message: "Error interno del servidor", err: error.message });
-    }
+router.get("/failregister", (req, res) => {
+    res
+        .status(400)
+        .send({ status: "error", message: "Error al registrar el usuario" });
 });
 
-router.get("/logout", async (req, res) => {
+// LOGIN
+router.post("/login",
+    passport.authenticate('login', {
+        failureRedirect: '/faillogin',
+        successRedirect: '/profile'
+    })
+);
+
+router.get("/faillogin", (req, res) => {
+    res
+        .status(400)
+        .send({ status: "error", message: "Error al logear el usuario" });
+});
+
+// LOGOUT
+router.post("/logout", async (req, res) => {
     const userSession = await req.session.user;
     console.log(userSession);
+        try {
+            req.session.destroy((err) => {
+                if (!err) {
+                    res.clearCookie('connect.sid');
+                    res.redirect("/login");
+                } else {
+                    return res.status(500).json({ message: "Error al cerrar sesión", err: err.message });
+                }
+            });
+        } catch (error) {
+            res.status(500).send("error interno del servidor");
+        }
+    }
+);
+
+// USER
+router.get("user/:id", async (req, res, next) => {
+    const { id } = req.params;
+    const userFound = await userModel.findById(id);
 
     try {
-        req.session.destroy((err) => {
-            if (err) {
-                return res.status(500).json({ message: "Error al cerrar sesión", err: err.message });
-            }
-
-        res.redirect("/login");
-        });
+        if(userFound){
+            res.status(200).json({ message: `Se encontro el usuario ${userFound} con exito!` });
+        }
     } catch (error) {
-        res.status(500).send("error interno del servidor");
+            next(error);
     }
 });
+
+// RECUPERO
+router.post('/recupero', async(req, res) => {
+    const { email, password } = req.body;
+    try {
+        if(!email || !password) return res.status(400).send("campos requeridos");
+        const userFound = await userModel.findOne({ email });
+
+        const hashPass = createHash(password);
+        userFound.password = hashPass;
+
+        await userFound.save();
+        res.redirect("/login");
+    } catch (error) {
+
+        res.status(500).send("error interno del servidor");
+    }
+})
 
 
 export default router;
