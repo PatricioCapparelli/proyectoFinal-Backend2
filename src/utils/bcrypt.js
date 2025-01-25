@@ -1,5 +1,5 @@
-import bcrypt from "bcrypt";
+import { hashSync, compareSync, genSaltSync } from "bcrypt";
 
-export const createHash = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+export const createHash = (password) => hashSync(password, genSaltSync(10));
 
-export const isValidPassword = (password, hash) => bcrypt.compareSync(password, hash)
+export const isValidPassword = (password, hash) => compareSync(password, hash);

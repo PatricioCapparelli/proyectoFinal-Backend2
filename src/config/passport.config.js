@@ -1,11 +1,18 @@
 import passport from "passport";
 import local from "passport-local";
+import { Strategy as GoogleStrategy} from "passport-google-oauth2";
+
 import userModel from "../models/users.model.js";
 import { createHash, isValidPassword } from "../utils/bcrypt.js";
+import { generateToken } from "../utils/jwt.js";
+
+const clientIdGoogle = '60180797130-kvboa55pbuvevli2q427lpfjhleeec0c.apps.googleusercontent.com';
+const clientKey = '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';
 
 const LocalStrategy = local.Strategy;
 
 const initializePassport = () => {
+
 passport.use("register", new LocalStrategy(
     {
     passReqToCallback: true,
@@ -25,6 +32,9 @@ passport.use("register", new LocalStrategy(
                 email,
                 password: createHash(password)
             };
+
+            if(role) newUser.role = role;
+
             const user = await userModel.create(newUser);
 
             return done(null, user);
@@ -41,7 +51,6 @@ passport.use("login", new LocalStrategy(
     },
     async (req, username, password, done) => {
         try {
-            console.log('Iniciando autenticación para:', username);
             const userFound = await userModel.findOne({ email: username });
             if (userFound) {
                 const isValid = isValidPassword(password, userFound.password);
@@ -51,8 +60,15 @@ passport.use("login", new LocalStrategy(
                         last_name: userFound.last_name,
                         email: userFound.email,
                     };
-                    console.log('Usuario autenticado correctamente:', req.session.user); // Verifica que la sesión esté correctamente asignada
-                    return done(null, userFound);
+
+                    const user = userFound._doc;
+                    delete user.password;
+                    console.log('Usuario autenticado correctamente:', user);
+
+                    const token = generateToken(user);
+                    console.log(token);
+
+                    return done(null, user, { token });
                 } else {
                     return done(null, false, { message: 'Contraseña incorrecta' });
                 }
@@ -64,6 +80,34 @@ passport.use("login", new LocalStrategy(
         }
     }
 ));
+
+// GOOGLE
+
+passport.use('google', new GoogleStrategy ({
+    clientID: clientIdGoogle,
+    clientSecret: clientKey,
+    callbackURL: 'http://localhost:3000/auth/google/callback'
+}, async(accesToken, refreshToken, profile, done) => {
+    try {
+        const userFound = await userModel.findOne({ email: profile.emails[0]?.value });
+        if(userFound) {
+            return done(null, userFound);
+        }
+
+        // en caso de que no existe, crea uno nuevo
+        const newUser = {
+            name: profile.name.givenName || "",
+            last_name: profile.name.familyName || "",
+            email: profile.emails[0]?.value || "",
+            password: "",
+        }
+        const user = await userModel.create(newUser);
+        return done(null, user);
+    } catch (error) {
+        return done(error);
+    }
+})
+);
 
 passport.serializeUser( (user, done) => {
     done(null, user.email);

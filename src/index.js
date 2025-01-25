@@ -25,10 +25,6 @@ configHandlebars(app);
 
 const secret = "myPass1234";
 
-// connect database
-
-connectDb();
-
 // middlewares
 
 app.use(express.json());
@@ -39,7 +35,7 @@ app.use(
   session({
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_DB_URI,
-      // ttl: 15,
+      ttl: 15,
     }),
     secret,
     resave: false,
@@ -53,10 +49,6 @@ app.use(passport.session())
 
 //routes
 
-app.get("/", (req, res) => {
-  res.render("home", { title: "HOME" });
-});
-
 app.use('/api/sessions', userRoutes)
 app.use('/', viewRoutes)
 
@@ -67,6 +59,9 @@ app.use((req, res, next) => {
 });
 
 //listeners
+
+connectDb();
+
 app.listen(app.get("PORT"), () => {
   console.log(`Server on port http://localhost:${app.get("PORT")}`);
 });
