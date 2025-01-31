@@ -4,7 +4,6 @@ const UserSchema = new Schema({
     name: {
         type: String,
         required: true,
-        unique: true
     },
     last_name: {
         type: String,
@@ -15,13 +14,20 @@ const UserSchema = new Schema({
         required: true,
         unique: true,
     },
+    age: {
+        type: Number
+    },
     password: {
         type: String,
-        required: false,
     },
     role:{
         type: String,
-        default: "user"
+        default: "user",
+        required: false
+    },
+    cart: {
+        type: Schema.Types.ObjectId,
+        ref: "carts",
     }
 });
 

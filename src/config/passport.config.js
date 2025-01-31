@@ -1,6 +1,7 @@
 import passport from "passport";
 import local from "passport-local";
 import { Strategy as GoogleStrategy} from "passport-google-oauth2";
+import jwt from "passport-jwt";
 
 import userModel from "../models/users.model.js";
 import { createHash, isValidPassword } from "../utils/bcrypt.js";
@@ -9,17 +10,19 @@ import { generateToken } from "../utils/jwt.js";
 const clientIdGoogle = '60180797130-kvboa55pbuvevli2q427lpfjhleeec0c.apps.googleusercontent.com';
 const clientKey = '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';
 
-const LocalStrategy = local.Strategy;
+const localStrategy = local.Strategy;
+const jwtStrategy = jwt.Strategy;
+const extractJwt = jwt.ExtractJwt;
 
 const initializePassport = () => {
 
-passport.use("register", new LocalStrategy(
+passport.use("register", new localStrategy(
     {
     passReqToCallback: true,
     usernameField:"email",
     },
     async(req, username, password, done) => {
-        const { name, last_name, email } = req.body;
+        const { name, last_name, email, age, role } = req.body;
         try {
             const userFound = await userModel.findOne({ email: username });
             if(userFound) {
@@ -30,6 +33,8 @@ passport.use("register", new LocalStrategy(
                 name,
                 last_name,
                 email,
+                age,
+                role,
                 password: createHash(password)
             };
 
@@ -44,7 +49,7 @@ passport.use("register", new LocalStrategy(
     }
 ));
 
-passport.use("login", new LocalStrategy(
+passport.use("login", new localStrategy(
     {
         passReqToCallback: true,
         usernameField: "email",
@@ -65,10 +70,7 @@ passport.use("login", new LocalStrategy(
                     delete user.password;
                     console.log('Usuario autenticado correctamente:', user);
 
-                    const token = generateToken(user);
-                    console.log(token);
-
-                    return done(null, user, { token });
+                    return done(null, user);
                 } else {
                     return done(null, false, { message: 'Contraseña incorrecta' });
                 }
@@ -76,10 +78,21 @@ passport.use("login", new LocalStrategy(
                 return done(null, false, { message: 'Usuario no encontrado' });
             }
         } catch (error) {
-            return done(`Error al crear el usuario: ${error}`, false);
+            return done(`Error al logear el usuario: ${error}`, false);
         }
     }
 ));
+
+passport.use('jwt', new jwtStrategy({ jwtFromRequest: extractJwt.fromExtractors([cookieExtractor]),
+    secretOrKey: 'jwt-key'
+ }, async (jwt_payload, done) => {
+    try {
+        return done(null, jwt_payload);
+    } catch (error) {
+        return done (error);
+    }
+ })
+)
 
 // GOOGLE
 
@@ -122,6 +135,14 @@ passport.deserializeUser(async (email, done) => {
     }
 });
 
-}
+};
+
+const cookieExtractor = req => {
+    let token = null;
+    if(req && req.cookies) {
+        token = req.cookies['auth_token'];
+    }
+    return token;
+};
 
 export default initializePassport;

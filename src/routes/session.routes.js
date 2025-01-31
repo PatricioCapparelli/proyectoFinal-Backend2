@@ -1,9 +1,10 @@
 import { Router } from "express";
-// 1
+
+import passport from "passport";
+
 import userModel from "../models/users.model.js";
 import { createHash } from "../utils/bcrypt.js";
-//2
-import passport from "passport";
+import { generateToken } from "../utils/jwt.js";
 
 const router = Router();
 
@@ -23,51 +24,42 @@ router.get("/failregister", (req, res) => {
 
 // LOGIN
 router.post("/login",
-    passport.authenticate('login', {
-        failureRedirect: '/faillogin',
-        successRedirect: '/profile'
-    }), (req, res) => {
-        if(req.user) {
-            const token = req.authInfo.token;
-            res.cookie("cookieToken", token, { signed: true });
-            return res.redirect('/');
-        }
-    });
+    passport.authenticate('login', { failureRedirect: '/faillogin', session: false }),
+    (req, res) => {
+        const token = generateToken(req.user);
+
+        res.cookie('auth_token', token, {
+            httpOnly: true,
+            maxAge: 3600000,
+        });
+        res.redirect('/profile');
+    }
+);
 
 router.get("/faillogin", (req, res) => {
-    res
-        .status(400)
-        .send({ status: "error", message: "Error al logear el usuario" });
+    res.status(401).send({ status: "error", message: "Error al logear el usuario" });
+});
+
+//GOOGLE
+router.get('/auth/google', passport.authenticate('google', {scope: ["email", 'profile']}));
+
+// UNAUTHORIZED
+router.get('/unauthorized', (req, res) => {
+    res.status(401).json({
+        status: 'error',
+        message: 'No autorizado'
+    });
 });
 
 // LOGOUT
-router.post("/logout", async (req, res, next) => {
+router.post("/logout", (req, res) => {
 
-    // const userSession = await req.session.user;
-    // console.log(userSession);
-    //     try {
-    //         req.session.destroy((err) => {
-    //             if (!err) {
-    //                 res.clearCookie('connect.sid');
-    //                 res.redirect("/login");
-    //             } else {
-    //                 return res.status(500).json({ message: "Error al cerrar sesión", err: err.message });
-    //             }
-    //         });
-    //     } catch (error) {
-    //         res.status(500).send("error interno del servidor");
-    //     }
+    res.clearCookie('auth_token', {
+        httpOnly: true,
+    });
 
-    req.logOut((err) => {
-        if (err) {
-            return next(err)
-        } else {
-            res.redirect('/login');
-        }
-    })
-}
-
-);
+    res.redirect('/login');
+});
 
 // USER
 router.get("user/:id", async (req, res, next) => {
@@ -82,9 +74,6 @@ router.get("user/:id", async (req, res, next) => {
         next(error);
     }
 });
-
-//GOOGLE
-router.get('/auth/google', passport.authenticate('google', {scope: ["email", 'profile']}));
 
 // RECUPERO
 router.post('/recupero', async (req, res) => {
@@ -102,7 +91,8 @@ router.post('/recupero', async (req, res) => {
 
         res.status(500).send("error interno del servidor");
     }
-})
+});
+
 
 
 export default router;
