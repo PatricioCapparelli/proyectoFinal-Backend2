@@ -1,18 +1,20 @@
 import passport from "passport";
 import local from "passport-local";
 import { Strategy as GoogleStrategy} from "passport-google-oauth2";
+
 import jwt from "passport-jwt";
-
-import userModel from "../models/users.model.js";
+import { client_google_id, client_key } from "../config/env.js"
+import Users from "../DAO/classes/users.dao.js"
 import { createHash, isValidPassword } from "../utils/bcrypt.js";
-import { generateToken } from "../utils/jwt.js";
 
-const clientIdGoogle = '60180797130-kvboa55pbuvevli2q427lpfjhleeec0c.apps.googleusercontent.com';
-const clientKey = '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';
+const clientIdGoogle = client_google_id;
+const clientKey = client_key;
 
 const localStrategy = local.Strategy;
 const jwtStrategy = jwt.Strategy;
 const extractJwt = jwt.ExtractJwt;
+
+const user = new Users();
 
 const initializePassport = () => {
 
@@ -24,7 +26,7 @@ passport.use("register", new localStrategy(
     async(req, username, password, done) => {
         const { name, last_name, email, age, role } = req.body;
         try {
-            const userFound = await userModel.findOne({ email: username });
+            const userFound = await user.getUserByMail({ email: username });
             if(userFound) {
                 console.log("Usuario existente");
                 return done(null, false);
@@ -40,7 +42,7 @@ passport.use("register", new localStrategy(
 
             if(role) newUser.role = role;
 
-            const user = await userModel.create(newUser);
+            const user = await user.createUser(newUser);
 
             return done(null, user);
         } catch (error) {
@@ -56,7 +58,7 @@ passport.use("login", new localStrategy(
     },
     async (req, username, password, done) => {
         try {
-            const userFound = await userModel.findOne({ email: username });
+            const userFound = await user.getUserByMail({ email: username });
             if (userFound) {
                 const isValid = isValidPassword(password, userFound.password);
                 if (isValid) {
@@ -102,19 +104,18 @@ passport.use('google', new GoogleStrategy ({
     callbackURL: 'http://localhost:3000/auth/google/callback'
 }, async(accesToken, refreshToken, profile, done) => {
     try {
-        const userFound = await userModel.findOne({ email: profile.emails[0]?.value });
+        const userFound = await user.getUserByGoogle({ email: profile.emails[0]?.value });
         if(userFound) {
             return done(null, userFound);
         }
 
-        // en caso de que no existe, crea uno nuevo
         const newUser = {
             name: profile.name.givenName || "",
             last_name: profile.name.familyName || "",
             email: profile.emails[0]?.value || "",
             password: "",
         }
-        const user = await userModel.create(newUser);
+        const user = await user.createUser(newUser);
         return done(null, user);
     } catch (error) {
         return done(error);
@@ -128,8 +129,8 @@ passport.serializeUser( (user, done) => {
 
 passport.deserializeUser(async (email, done) => {
     try {
-        const user = await userModel.findOne({ email });
-        done(null, user);  // Recupera el usuario desde la base de datos
+        const user = await user.getUserByMail({ email });
+        done(null, user);
     } catch (error) {
         done(error, null);
     }
@@ -139,7 +140,7 @@ passport.deserializeUser(async (email, done) => {
 
 const cookieExtractor = req => {
     let token = null;
-    if(req && req.cookies) {
+    if(req ?? req.cookies) {
         token = req.cookies['auth_token'];
     }
     return token;

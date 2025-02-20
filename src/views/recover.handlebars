@@ -1,0 +1,19 @@
+<section class="container">
+    <h1>{{title}}</h1>
+    <form action="/api/sessions/recover" method="post" >
+        <div>
+            <div>
+                <label for="email">Email:</label>
+                <br />
+                <input type="email" id="email" name="email" placeholder="example@mail.com" />
+            </div>
+            <div>
+                <label for="password">Nuevo password:</label>
+                <br />
+                <input type="password" id="password" name="password" placeholder="12345" autocomplete="additional-name"/>
+            </div>
+            <br />
+            <button type="submit">Recuperar password</button>
+        </div>
+    </form>
+</section>
