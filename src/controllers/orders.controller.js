@@ -32,7 +32,7 @@ export const createOrder = async (req, res) => {
     const actualOrders = businessFound.products.filter((product) =>
       products.includes(product.id)
     );
-    //calculamos el precio total de la orden
+
     const totalPrice = actualOrders.reduce(
       (acc, prev) => (acc += prev.price),
       0
@@ -46,7 +46,7 @@ export const createOrder = async (req, res) => {
       totalPrice,
     };
     const orderResult = await orderService.createOrder(order);
-    
+
     userFound.orders.push(orderResult._id)
     await userService.updateUser(user,userFound)
     res.status(201).json({ status: "success", payload: orderResult });

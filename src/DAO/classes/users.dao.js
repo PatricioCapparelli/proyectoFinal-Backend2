@@ -1,6 +1,6 @@
 import usersModel from "../models/users.model.js";
 
-export default class Users{
+export default class User{
   getUsers = async () => {
     try {
       const users = await usersModel.find();
@@ -12,12 +12,7 @@ export default class Users{
   };
   getUserByMail = async (username) => {
     try {
-        const user = await usersModel.findOne({
-            $or: [
-                { email: username },
-                { username: username },
-            ],
-        });
+        const user = await usersModel.findOne({ username });
         return user;
     } catch (error) {
         console.log("Error en getUserByMail:", error);

@@ -1,15 +1,18 @@
 import { Router } from "express";
 import handlePolicies from "../middlewares/handle-policies.js";
-import { getUsers, getUserById, createUser, getCurrentUser } from "../controllers/users.controller.js";
+import { loginUser, getUsers, getUserById, createUser, getCurrentUser } from "../controllers/users.controller.js";
+import { authToken } from "../utils/jwt.js";
 
 const router = Router();
 
-router.get("/", authenticate, handlePolicies(["ADMIN"]), getUsers);
+router.get("/",authToken, getUsers);
 
-router.get("/:uid", authenticate, handlePolicies(["ADMIN", "USER"]), getUserById);
+router.get("/login",authToken, loginUser);
 
-router.post("/", authenticate, handlePolicies(["ADMIN"]), createUser);
+router.get("/:uid", handlePolicies(["ADMIN", "USER"]), getUserById);
 
-router.get("/current", authenticate, handlePolicies(["ADMIN", "USER"]), getCurrentUser);
+router.post("/register", createUser);
+
+router.get("/current", authToken, handlePolicies(["ADMIN", "USER"]), getCurrentUser);
 
 export default router;

@@ -5,9 +5,11 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import paths from "./utils/path.js";
+import cors from "cors";
 
 import initializePassport  from "./config/passport.config.js";
 import passport from "passport";
+
 
 import userRoutes from "./routes/users.router.js";
 import orderRoutes from "./routes/orders.router.js";
@@ -21,13 +23,18 @@ dotenv.config();
 
 app.set("PORT", process.env.PORT);
 
+const corsOptions = {
+  origin: ["http://127.0.0.1:5500"],
+  credentials: true
+};
+
 const secret = "myPass1234";
 
 // middlewares
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors(corsOptions));
 app.use("/api/public", express.static(paths.public));
 app.use(cookieParser());
 app.use(
@@ -47,6 +54,7 @@ app.use(passport.initialize());
 app.use(passport.session())
 
 //Routes
+
 
 app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
