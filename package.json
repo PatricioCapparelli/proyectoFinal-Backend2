@@ -1,5 +1,5 @@
 {
-  "name": "template-server-with-handelbars",
+  "name": "Proyecto Final Backend 2",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -8,10 +8,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "Daniel Riverol",
+  "author": "Patricio Capparelli",
   "license": "MIT",
   "type": "module",
-  "description": "Plantilla de servidor básica ",
+  "description": "Proyecto Final Backend 2",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "commander": "^13.1.0",

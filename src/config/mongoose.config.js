@@ -1,8 +1,9 @@
 import { connect } from "mongoose";
+import { mongodb_url } from "./env.js";
 
 export const connectDb = async () => {
 
-    const mongodbUri = process.env.MONGO_DB_URI;
+    const mongodbUri = mongodb_url;
     try {
         await connect(mongodbUri);
         console.log("Conexion con la BD exitosa!");
@@ -10,3 +11,4 @@ export const connectDb = async () => {
         console.log("No se pudo establecer la conexion con la BD", error);
     }
 };
+

@@ -1,4 +1,5 @@
-import { Schema, model } from "mongoose";
+import mongoose from 'mongoose';
+const { Schema, model, models } = mongoose;
 
 const UserSchema = new Schema({
     name: {
@@ -15,15 +16,15 @@ const UserSchema = new Schema({
         unique: true,
     },
     age: {
-        type: Number
+        type: Number,
     },
     password: {
         type: String,
+        required: true,
     },
-    role:{
+    role: {
         type: String,
         default: "user",
-        required: false
     },
     cart: {
         type: Schema.Types.ObjectId,
@@ -31,4 +32,5 @@ const UserSchema = new Schema({
     }
 });
 
-export default model("User", UserSchema);
+
+export default models.User || model("User", UserSchema);

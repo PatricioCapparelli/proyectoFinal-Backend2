@@ -33,28 +33,32 @@ getbutton.addEventListener("click", () => {
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-  const name = e.target.name.value;
-  const last_name = e.target.last_name.value;
-  const email = e.target.email.value;
-  const age = e.target.age.value;
-  const password = e.target.password.value;
-  const role = e.target.role.value;
 
+  const nombre = e.target.nombre.value;
+  const apellido = e.target.apellido.value;
+  const email = e.target.correo.value;
+  const edad = e.target.edad.value;
+  const contraseña = e.target.contraseña.value;
+  const rol = e.target.rol.value;
+
+  console.log({ nombre, apellido, email, edad, contraseña, rol });
 
   fetch("http://localhost:3000/api/users/register", {
     method: "POST",
-    body: JSON.stringify({  name, last_name, email, age, password, role  }),
+    body: JSON.stringify({ nombre, apellido, email, edad, contraseña, rol }),
     headers: {
       "Content-Type": "application/json",
     },
-    credentials: 'include'
+    credentials: 'include',
   })
     .then((res) => res.json())
     .then((data) => {
       if (data.token) {
         window.location.href = '../pages/perfil.html';
       }
+    })
+    .catch((err) => {
+      console.error('Error al crear el usuario:', err);
     });
 });
-
 

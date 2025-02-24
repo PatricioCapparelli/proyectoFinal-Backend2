@@ -1,7 +1,8 @@
 import passport from "passport";
 import local from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-google-oauth2";
-import User from "../dao/classes/users.dao.js";
+import User from "../DAO/classes/users.dao.js";
+import { usersService } from "../repositories/index.js";
 
 import jwt from "passport-jwt";
 import { createHash, isValidPassword } from "../utils/bcrypt.js";
@@ -12,47 +13,43 @@ const extractJwt = jwt.ExtractJwt;
 
 const user = new User();
 
-const initializePassport = () => {
+let usersServices;
 
-passport.use("register", new localStrategy(
+const initializePassport = async () => {
+    usersServices = usersService;
+
+    passport.use("register", new localStrategy(
         {
-            passReqToCallback: true,  // Para acceder a req.body
-            usernameField: "email",   // El campo de correo electrónico es usado como 'username'
+          passReqToCallback: true,
+          usernameField: "email",
         },
-        async (req, username, password, done) => {
-            const { name, last_name, email, age, role } = req.body;
-            try {
-                const userFound = await user.getUserByMail({ email: username });
+        async (req, email, password, done) => {
+          const { nombre, apellido, edad, rol } = req.body;
 
-                if (userFound) {
-                    console.log("Usuario ya existe con el correo:", username);
-                    return done(null, false, { message: 'El correo ya está registrado' });
-                }
-
-                // Crear un nuevo usuario
-                const newUser = {
-                    name,
-                    last_name,
-                    email,
-                    age,
-                    role,
-                    password: createHash(password),  // Hashear la contraseña
-                };
-
-                if (role) newUser.role = role;  // Establecer el rol si se proporciona
-
-                // Crear el usuario en la base de datos
-                const createdUser = await user.createUser(newUser);
-
-                // Retornar el usuario creado
-                return done(null, createdUser);
-            } catch (error) {
-                console.error("Error al crear el usuario:", error);  // Registrar el error en consola
-                return done(error, false);  // Pasar el error correctamente
+          try {
+            const userFound = await usersServices.getByEmail(email);
+            if (userFound) {
+              return done(null, false, { message: 'El correo ya está registrado' });
             }
-        }
-));
 
+            const newUser = {
+              nombre,
+              apellido,
+              email,
+              edad,
+              rol: rol || 'user',
+              contraseña: createHash(password),
+            };
+
+            const result = await usersServices.createUser(newUser);
+
+            return done(null, result);
+          } catch (error) {
+            console.error("Error al crear el usuario:", error);
+            return done(error, false);
+          }
+        }
+      ));
 
     passport.use("login", new localStrategy(
         {

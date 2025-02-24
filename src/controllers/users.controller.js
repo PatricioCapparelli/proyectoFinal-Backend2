@@ -1,6 +1,5 @@
 import passport from "passport";
-import { authToken } from "../utils/jwt.js";
-import User from "../dao/classes/users.dao.js";
+import User from "../DAO/classes/users.dao.js";
 import { generateToken } from "../utils/jwt.js";
 const userService = new User();
 
@@ -23,23 +22,33 @@ export const getUserById = async (req, res) => {
 };
 
 export const createUser = async (req, res) => {
+  console.log("Controlador de creación de usuario ejecutado");
   passport.authenticate('register', async (err, user, info) => {
-
     if (err) {
       return res.status(500).json({ message: 'Error al registrarse', error: err });
     }
     if (!user) {
       return res.status(400).json({ message: info.message || 'No se proporcionó un usuario' });
     }
+    try {
+      const result = await userService.createUser(user);
+      const token = generateToken(result);
+      res.cookie('token', token, {
+        httpOnly: true,
+        maxAge: 3600000
+      });
 
-    const token = generateToken(user);
-    res.cookie('token', token, {
-      httpOnly: true,
-      maxAge: 360000
-    });
-    return res.status(200).json({ message: 'Usuario creado exitosamente', token });
+      return res.status(200).json({
+        message: 'Usuario creado exitosamente',
+        token
+      });
+    } catch (error) {
+      return res.status(500).json({ message: 'Error al procesar la creación del usuario', error });
+    }
   })(req, res);
 };
+
+
 
 export const getCurrentUser =  async (req, res) => {
     try {
