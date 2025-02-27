@@ -12,7 +12,6 @@ export default class UserDAO {
     }
   }
 
-  // Obtener un usuario por su ID
   async getUserById(id) {
     try {
       const user = await UserModel.findById(id);
@@ -23,7 +22,6 @@ export default class UserDAO {
     }
   }
 
-  // Crear un nuevo usuario
   async createUser(userData) {
     try {
       const newUser = await UserModel.create(userData);
@@ -34,7 +32,6 @@ export default class UserDAO {
     }
   }
 
-  // Obtener un usuario por su correo electrónico
   async getByEmail(email) {
     try {
       const user = await UserModel.findOne({ email });
@@ -45,7 +42,6 @@ export default class UserDAO {
     }
   }
 
-  // Actualizar un usuario
   async updateUser(id, userData) {
     try {
       const updatedUser = await UserModel.findByIdAndUpdate(id, userData, { new: true });
@@ -56,7 +52,6 @@ export default class UserDAO {
     }
   }
 
-  // Eliminar un usuario
   async deleteUser(id) {
     try {
       const deletedUser = await UserModel.findByIdAndDelete(id);

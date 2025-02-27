@@ -1,36 +1,36 @@
-import OrderModel from "../models/orders.model.js";
+import ProductModel from "../models/products.model.js";
 
-export default class Order {
-  getOrders = async () => {
+export default class Product {
+  getProducts = async () => {
     try {
-      const Order = await OrderModel.find();
-      return Order;
+      const Product = await ProductModel.find();
+      return Product;
     } catch (error) {
       console.log(error);
       return null;
     }
   };
-  getOrderById = async (id) => {
+  getProductById = async (id) => {
     try {
-      const Order = await OrderModel.findOne({ _id: id });
-      return Order;
+      const Product = await ProductModel.findOne({ _id: id });
+      return Product;
     } catch (error) {
       console.log(error);
       return null;
     }
   };
-  createOrder = async (Order) => {
+  createProduct = async (Product) => {
     try {
-      const result = await OrderModel.create(Order);
+      const result = await ProductModel.create(Product);
       return result;
     } catch (error) {
       console.log(error);
       return null;
     }
   };
-  resolveOrder = async (id, Order) => {
+  resolveProduct = async (id, Product) => {
     try {
-      const result = await OrderModel.updateOne({ _id: id }, { $set: Order });
+      const result = await ProductModel.updateOne({ _id: id }, { $set: Product });
       return result;
     } catch (error) {
       console.log(error);

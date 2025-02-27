@@ -1,7 +1,7 @@
-import Cart from './cart.model.js';
+import Cart from '../models/cart.model.js';
 import TicketService from './tickets.dao.js';
 
-class CartService {
+export default class CartService {
   async purchaseCart(cartId, purchaserEmail) {
     try {
       const cart = await Cart.findById(cartId).populate('products.productId');
@@ -49,6 +49,45 @@ class CartService {
       throw new Error(error.message);
     }
   }
-}
 
-export default new CartService();
+  getCart = async () => {
+    try {
+      const cart = await Cart.find();
+      return cart;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  };
+
+  createCart = async (cart) => {
+    try {
+      const cart = await Cart.create(cart);
+      return cart;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  };
+
+  updateCart = async (id) => {
+    try {
+      const result = await Cart.updateOne({ _id: id }, { $set: Cart });
+      return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  };
+  getCartById = async (id) => {
+    try {
+      const result = await Cart.findById({ _id: id });
+      return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  };
+
+};
+

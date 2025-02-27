@@ -13,8 +13,8 @@ import initializePassport from "./config/passport.config.js";
 import passport from "passport";
 
 import userRoutes from "./routes/users.router.js";
-import orderRoutes from "./routes/orders.router.js";
-import businessRoutes from "./routes/business.router.js";
+import productRoutes from "./routes/product.router.js";
+import cartRoutes from "./routes/cart.router.js";
 
 // Settings
 const app = express();
@@ -52,8 +52,8 @@ connectDb().then(() => {
 
   // Routes
   app.use("/api/users", userRoutes);
-  app.use("/api/orders", orderRoutes);
-  app.use("/api/business", businessRoutes);
+  app.use("/api/products", productRoutes);
+  app.use("/api/cart", cartRoutes);
 
   // Listeners
   app.listen(app.get("PORT"), () => {

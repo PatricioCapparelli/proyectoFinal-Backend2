@@ -1,4 +1,4 @@
-import Ticket from './tickets.dao';
+import Ticket from '../models/ticket.model.js';
 
 class TicketService {
 
