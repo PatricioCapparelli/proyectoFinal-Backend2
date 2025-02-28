@@ -17,9 +17,14 @@ export default class UsersRepository {
   }
 
   async createUser(userData) {
-    const newUser = await this.userDAO.createUser(userData);
-    return new UserDTO(newUser);
-  }
+    try {
+        const newUser = new UserDTO(userData);
+        return await this.userDAO.createUser(newUser);
+    } catch (error) {
+        console.error('Error al crear el usuario:', error);
+        throw error;
+    }
+}
 
   async getByEmail(email) {
     const user = await this.userDAO.getByEmail(email);

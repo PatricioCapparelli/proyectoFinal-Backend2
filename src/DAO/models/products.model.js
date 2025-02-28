@@ -1,11 +1,11 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model } from "mongoose";
 
-const productSchema = new Schema({
-  name: { type: String, required: true },
-  price: { type: Number, required: true },
-  stock: { type: Number, required: true },
+const ProductsSchema = new Schema({
+  name: { type: String, required: true, trim: true },
+  code: { type: String, required: true, trim: true, unique: true },
+  description: { type: String, trim: true },
+  price: { type: Number, required: true, default: 0, min: 0 },
+  stock: { type: Number, required: true, default: 0, min: 0 },
 });
 
-const Product = model('Product', productSchema);
-
-export default Product;
+export default model("Products", ProductsSchema);

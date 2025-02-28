@@ -3,11 +3,13 @@ const form = document.querySelector("#create-user");
 const lista_de_usuarios = document.getElementById('user-list');
 
 getbutton.addEventListener("click", () => {
-  fetch("http://localhost:3000/")
+  fetch("http://localhost:3000/api/users/",{
+    method: "GET",
+    credentials: 'include',
+  })
     .then((res) => res.json())
     .then((data) => {
       console.log(data.payload);
-
 
       lista_de_usuarios.innerHTML = '';
 
@@ -36,7 +38,7 @@ form.addEventListener("submit", (e) => {
 
   const nombre = e.target.nombre.value;
   const apellido = e.target.apellido.value;
-  const email = e.target.correo.value;
+  const email = e.target.email.value;
   const edad = e.target.edad.value;
   const contraseña = e.target.contraseña.value;
   const rol = e.target.rol.value;
@@ -47,18 +49,30 @@ form.addEventListener("submit", (e) => {
     method: "POST",
     body: JSON.stringify({ nombre, apellido, email, edad, contraseña, rol }),
     headers: {
-      "Content-Type": "application/json",
+        "Content-Type": "application/json",
     },
-    credentials: 'include',
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.token) {
-        window.location.href = '../pages/perfil.html';
-      }
-    })
-    .catch((err) => {
-      console.error('Error al crear el usuario:', err);
-    });
+    credentials: "include",
+})
+.then(async (response) => {
+    const data = await response.json();
+
+    console.log("Respuesta del servidor:", data);
+
+    if (response.status === 201 || response.status === 200) {
+
+        const token = data.token;
+        console.log("Usuario creado exitosamente. Token:", token);
+
+        if (token) {
+            localStorage.setItem('token', token);
+            window.location.href = "http://localhost:3000/api/users/login";
+        }
+    } else {
+        console.error("Error en la creación del usuario:", data.message || "Error desconocido");
+    }
+})
+.catch((err) => {
+    console.error("Error al hacer la solicitud:", err);
+});
 });
 

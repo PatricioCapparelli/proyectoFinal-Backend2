@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-const { Schema, model, models } = mongoose;
+const { Schema, model, models, SchemaTypes } = mongoose;
 
 const UserSchema = new Schema({
     name: {
@@ -25,11 +25,9 @@ const UserSchema = new Schema({
     role: {
         type: String,
         default: "user",
+        trim: true,
     },
-    cart: {
-        type: Schema.Types.ObjectId,
-        ref: "carts",
-    }
+    cart: { type: SchemaTypes.ObjectId, ref: "Carts" },
 });
 
 

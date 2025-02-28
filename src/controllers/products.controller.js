@@ -1,7 +1,7 @@
 import Product from "../DAO/classes/products.dao.js";
 import User from "../DAO/classes/users.dao.js";
 import CartService from "../DAO/classes/cart.dao.js";
-import { v4 as uuid } from "uuid";
+import ProductDTO from "../DAO/DTOs/product.dto.js";
 
 const userService = new User();
 const cartsService = new CartService();
@@ -26,35 +26,18 @@ export const getProductById = async (req, res) => {
   }
 };
 
-export const createProduct = async (req, res) => {
-  const { user, carts, products } = req.body;
-  try {
-    const userFound = await userService.getUserById(user);
-    const cartsFound = await cartsService.getCartsById(carts);
-    const actualProducts = cartsFound.products.filter((product) =>
-      products.includes(product.id)
-    );
+export const createProduct = async (product) => {
+  const productFound = await productService.getByCode(product.code);
 
-    const totalPrice = actualProducts.reduce(
-      (acc, prev) => (acc += prev.price),
-      0
-    );
-    const Product = {
-      number: uuid(),
-      carts,
-      user,
-      status: "pending",
-      products: actualProducts.map((product) => product.id),
-      totalPrice,
-    };
-    const ProductResult = await productService.createProduct(Product);
-
-    userFound.Products.push(ProductResult._id)
-    await userService.updateUser(user,userFound)
-    res.status(201).json({ status: "success", payload: ProductResult });
-  } catch (error) {
-    return res.status(500).json({ status: "Error", error: error.message });
+  if (productFound) {
+    throw new Error("Product already exists");
   }
+
+  const formatt = new ProductDTO(product);
+
+  const newProduct = await productService.create(formatt);
+
+  return newProduct;
 };
 
 export const resolveProduct = async (req, res) => {

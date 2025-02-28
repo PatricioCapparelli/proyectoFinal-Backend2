@@ -1,36 +1,22 @@
 import { Schema, model } from "mongoose";
+import generateTicketCode from "../../utils/generateTicket.js"
 
-const generateTicketCode = () => {
-  return 'TICKET-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-};
-
-const ticketSchema = new Schema(
-  {
-    code: {
-      type: String,
-      required: true,
-      unique: true,
-      default: generateTicketCode,
-    },
-    purchase_datetime: {
-      type: Date,
-      required: true,
-      default: Date.now,
-    },
-    amount: {
-      type: Number,
-      required: true,
-    },
-    purchaser: {
-      type: String,
-      required: true,
-    },
+const TicketsSchema = new Schema({
+  code: { type: String, unique: true, required: true },
+  purchase_datetime: {
+    type: Date,
+    default: generateTicketCode(),
   },
-  {
-    timestamps: true,
-  }
-);
+  amount: {
+    type: Number,
+    required: true,
+  },
+  purchaser: {
+    type: String,
+    required: true,
+  },
+});
 
-const Ticket = model('Ticket', ticketSchema);
+const Ticket = model('Ticket', TicketsSchema);
 
 export default Ticket;

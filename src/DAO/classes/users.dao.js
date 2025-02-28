@@ -27,7 +27,7 @@ export default class UserDAO {
       const newUser = await UserModel.create(userData);
       return newUser;
     } catch (error) {
-      console.error('Error al crear el usuario:', error);
+      console.error('Error al crear el usuariop:', error);
       throw error;
     }
   }

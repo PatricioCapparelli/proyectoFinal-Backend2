@@ -4,6 +4,7 @@ dotenv.config();
 import express from "express";
 import { connectDb } from "./config/mongoose.config.js";
 import cookieParser from "cookie-parser";
+import { engine } from 'express-handlebars';
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import paths from "./utils/path.js";
@@ -15,10 +16,15 @@ import passport from "passport";
 import userRoutes from "./routes/users.router.js";
 import productRoutes from "./routes/product.router.js";
 import cartRoutes from "./routes/cart.router.js";
+import viewRoutes from "./viewRoutes/users.view.routes.js";
 
 // Settings
 const app = express();
 app.set("PORT", process.env.PORT);
+
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
+app.set('views', paths.views);
 
 const corsOptions = {
   origin: ["http://127.0.0.1:5500"],
@@ -26,6 +32,8 @@ const corsOptions = {
 };
 
 const secret = "myPass1234";
+
+connectDb();
 
 // Middlewares
 app.use(express.json());
@@ -45,18 +53,20 @@ app.use(
   })
 );
 
-connectDb().then(() => {
-  initializePassport();
-  app.use(passport.initialize());
-  app.use(passport.session());
 
-  // Routes
-  app.use("/api/users", userRoutes);
-  app.use("/api/products", productRoutes);
-  app.use("/api/cart", cartRoutes);
+initializePassport();
+app.use(passport.initialize());
+app.use(passport.session());
 
-  // Listeners
-  app.listen(app.get("PORT"), () => {
+
+// Routes
+app.use("/", viewRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/cart", cartRoutes);
+
+// Listeners
+app.listen(app.get("PORT"), () => {
     console.log(`Server on port http://localhost:${app.get("PORT")}`);
-  });
 });
+

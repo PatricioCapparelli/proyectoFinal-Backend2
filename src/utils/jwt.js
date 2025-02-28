@@ -7,6 +7,7 @@ export const generateToken = (user) => {
 };
 
 export const authToken = (req, res, next) => {
+    console.log("Token recibido:", req.headers.authorization);
     const authHeader = req.headers.authorization;
     if(!authHeader) return res.status(401).send({ error: "No autenticado" });
     const token = authHeader.split(' ')[1]

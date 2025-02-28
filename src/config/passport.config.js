@@ -6,8 +6,9 @@ import { usersService } from "../repositories/index.js";
 
 import jwt from "passport-jwt";
 import { createHash, isValidPassword } from "../utils/bcrypt.js";
+import usersModel from "../DAO/models/users.model.js";
 
-const localStrategy = local.Strategy;
+const LocalStrategy = local.Strategy;
 const jwtStrategy = jwt.Strategy;
 const extractJwt = jwt.ExtractJwt;
 
@@ -18,47 +19,50 @@ let usersServices;
 const initializePassport = async () => {
     usersServices = usersService;
 
-    passport.use("register", new localStrategy(
-        {
-          passReqToCallback: true,
-          usernameField: "email",
-        },
-        async (req, email, password, done) => {
-          const { nombre, apellido, edad, rol } = req.body;
+    passport.use(
+        "register",
+        new LocalStrategy(
+            {
+                passReqToCallback: true,
+                usernameField: "email",
+            },
+            async (req, email, password, done) => {
+                console.log("Registrando usuario:", req.body);
+                const { nombre, apellido, edad, rol } = req.body;
 
-          try {
-            const userFound = await usersServices.getByEmail(email);
-            if (userFound) {
-              return done(null, false, { message: 'El correo ya está registrado' });
+                try {
+                    const userFound = await usersModel.findOne({ email: username });
+                    if (userFound) {
+                        return done(null, false, { message: "El correo ya está registrado" });
+                    }
+
+                    const newUser = {
+                        nombre,
+                        apellido,
+                        email,
+                        edad,
+                        rol: rol || "user",
+                        contraseña: createHash(password),
+                    };
+
+                    const result = await usersServices.createUser(newUser);
+                    return done(null, result);
+                } catch (error) {
+                    console.error("Error al crear el usuario:", error);
+                    return done(error, false);
+                }
             }
+        )
+    );
 
-            const newUser = {
-              nombre,
-              apellido,
-              email,
-              edad,
-              rol: rol || 'user',
-              contraseña: createHash(password),
-            };
-
-            const result = await usersServices.createUser(newUser);
-
-            return done(null, result);
-          } catch (error) {
-            console.error("Error al crear el usuario:", error);
-            return done(error, false);
-          }
-        }
-      ));
-
-    passport.use("login", new localStrategy(
+    passport.use("login", new LocalStrategy(
         {
             passReqToCallback: true,
             usernameField: "email",
         },
         async (req, username, password, done) => {
             try {
-                const userFound = await user.getUserByMail({ email: username });
+                const userFound = await usersModel.findOne({ email: username });
                 if (userFound) {
                     const isValid = isValidPassword(password, userFound.password);
                     if (isValid) {
@@ -139,12 +143,12 @@ const initializePassport = async () => {
 
 };
 
-const cookieExtractor = req => {
+export const cookieExtractor = (req) => {
     let token = null;
-    if (req ?? req.cookies) {
-        token = req.cookies['auth_token'];
+    if (req && req.cookies) {
+      token = req.cookies.token;
     }
     return token;
-};
+  };
 
 export default initializePassport;
