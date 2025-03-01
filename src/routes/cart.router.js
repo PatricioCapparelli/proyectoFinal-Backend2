@@ -1,22 +1,19 @@
 import { Router } from "express";
 import {
-    finalizarCompra,
-    getCart,
-    getCartById,
+    findAll,
+    findOneById,
+    updateOneById,
     createCart,
-    // addProduct,
  } from "../controllers/cart.controller.js";
 
 const router = Router();
 
-router.post('/:cid/purchase', finalizarCompra);
+router.get('/', findAll);
 
-router.get('/', getCart);
+router.post('/:cid', findOneById);
 
-router.post('/:cid', getCartById);
+router.put('/:id', updateOneById);
 
 router.post('/', createCart);
-
-// router.post('/:pid/product', addProduct);
 
 export default router;
