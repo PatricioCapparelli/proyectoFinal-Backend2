@@ -1,5 +1,4 @@
 import ProductModel from "../models/products.model.js";
-import ProductDTO from "../DTOs/product.dto.js"
 
 export default class Product {
   getProducts = async () => {
@@ -25,8 +24,7 @@ export default class Product {
   createProduct = async (Product) => {
     try {
       const result = await ProductModel.create(Product);
-      const product = await ProductDTO(result);
-      return product;
+      return result;
     } catch (error) {
       console.log(error);
       return null;

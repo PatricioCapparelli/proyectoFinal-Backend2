@@ -4,7 +4,7 @@ import {
     getCart,
     getCartById,
     createCart,
-    addProduct,
+    // addProduct,
  } from "../controllers/cart.controller.js";
 
 const router = Router();
@@ -17,6 +17,6 @@ router.post('/:cid', getCartById);
 
 router.post('/', createCart);
 
-router.post('/:pid/product', addProduct);
+// router.post('/:pid/product', addProduct);
 
 export default router;

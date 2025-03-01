@@ -1,22 +1,62 @@
-import TicketService from './ticket.service.js';
+import Ticket from "../DAO/classes/tickets.dao.js";
+import Cart from "../DAO/classes/cart.dao.js";
+import ticketsDto from "../DAO/DTOs/ticket.js";
+import cartsController from "../controllers/cart.controller.js";
 
-export const createTickets = async (req, res) => {
-  const { purchaserEmail, totalAmount } = req.body;
-  try {
-    const newTicket = await TicketService.createTicket(purchaserEmail, totalAmount);
-    res.status(201).json(newTicket);
-  } catch (error) {
-    res.status(500).json({ message: "Error al crear el ticket", error: error.message });
-  }
-}
+const ticketService = new Ticket();
+const cartsService = new Cart();
 
-export const getAllTickets = async (req, res) => {
-  try {
-    const tickets = await TicketService.getAllTickets();
-    res.status(200).json(tickets);
-  } catch (error) {
-    res.status(500).json({ message: "Error al obtener los tickets", error: error.message });
-  }
-}
 
-export default router;
+const findAll = async () => {
+  const tickets = await ticketService.getAll();
+  return tickets;
+};
+
+const findOneById = async (id) => {
+  const ticket = await ticketService.getById(id);
+  return ticket;
+};
+
+const updateOneById = async (id, newData) => {
+  const ticketFound = await ticketService.getById(id);
+  const { purchaser, amount } = newData;
+
+  const updateTicket = {
+    purchaser,
+    amount,
+  };
+
+  const result = await ticketService.update(ticketFound._id, updateTicket);
+  return result;
+};
+
+const createOne = async (cart) => {
+  const cartFound = await cartsService.getById(cart);
+
+  const ticket = {
+    amount: cartFound.total,
+    purchaser: cartFound.user,
+  };
+
+  const formattedTicket = new ticketsDto(ticket);
+
+  const newTicket = await ticketService.create(formattedTicket);
+
+  const deletingProducts = await cartsController.deleteAllProductsOnCart(cart);
+  if (!deletingProducts)
+
+  return newTicket;
+};
+
+const deleteOneById = async (id) => {
+  const result = await ticketService.delete(id);
+  return result;
+};
+
+export default {
+  findAll,
+  createOne,
+  findOneById,
+  deleteOneById,
+  updateOneById,
+};

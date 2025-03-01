@@ -24,21 +24,38 @@ export const getProductById = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ status: "Error", error: error.message });
   }
-};
+}
 
-export const createProduct = async (product) => {
-  const productFound = await productService.getByCode(product.code);
+export const createProduct = async (req, res) => {
+  try {
+    const { name, code, description, price, stock } = req.body;
 
-  if (productFound) {
-    throw new Error("Product already exists");
+    if (!name || !code) {
+      return res.status(400).json({ error: 'Name and code are required' });
+    }
+
+    const formattedProduct = new ProductDTO({
+      name,
+      code,
+      description,
+      price,
+      stock,
+    });
+
+    const newProduct = await productService.createProduct(formattedProduct);
+
+    if (!newProduct) {
+      return res.status(500).json({ error: 'Error creating product in the database' });
+    }
+
+    return res.status(201).json(newProduct);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error while creating product' });
   }
-
-  const formatt = new ProductDTO(product);
-
-  const newProduct = await productService.create(formatt);
-
-  return newProduct;
 };
+
+
 
 export const resolveProduct = async (req, res) => {
   res.status(201).json({ status: "success", payload: "ResolveProduct" });
