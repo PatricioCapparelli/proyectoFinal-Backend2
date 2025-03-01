@@ -1,91 +1,59 @@
-import Cart from '../models/cart.model.js';
-import TicketService from './tickets.dao.js';
+import cartsModel from '../models/cart.model.js';
 
 export default class CartService {
-  async purchaseCart(cartId, purchaserEmail) {
+  getAll = async () => {
     try {
-      const cart = await Cart.findById(cartId).populate('products.productId');
-      if (!cart) {
-        throw new Error('Carrito no encontrado');
-      }
-
-      const insufficientStockProducts = [];
-      const productsToUpdate = [];
-      const productsPurchased = [];
-
-      let totalAmount = 0;
-
-      for (let item of cart.products) {
-        const product = item.productId;
-        const requestedQuantity = item.quantity;
-
-        if (product.stock >= requestedQuantity) {
-          product.stock -= requestedQuantity;
-          productsToUpdate.push(product);
-          productsPurchased.push(item);
-          totalAmount += product.price * requestedQuantity;
-        } else {
-          insufficientStockProducts.push(product.name);
-        }
-      }
-
-
-      if (insufficientStockProducts.length > 0) {
-
-        cart.products = cart.products.filter(item => insufficientStockProducts.includes(item.productId.name));
-        await cart.save();
-        throw new Error(`Stock insuficiente para los productos: ${insufficientStockProducts.join(', ')}`);
-      }
-
-      await Promise.all(productsToUpdate.map(product => product.save()));
-
-      const ticket = await TicketService.createTicket(purchaserEmail, productsPurchased, totalAmount);
-
-      cart.products = cart.products.filter(item => insufficientStockProducts.includes(item.productId.name));
-      await cart.save();
-
-      return { message: 'Compra realizada con éxito', ticket };
-    } catch (error) {
-      throw new Error(error.message);
+      const carts = await cartsModel.find();
+      return carts;
+    } catch (e) {
+      throw new Error("Fail getting all the carts");
     }
-  }
+  };
 
-  getCart = async () => {
+  getById = async (id) => {
     try {
-      const cart = await Cart.find();
+      const cart = await cartsModel.findOne({ _id: id });
       return cart;
-    } catch (error) {
-      console.log(error);
-      return null;
+    } catch (e) {
+      throw new Error("Fail getting cart by id");
     }
   };
 
-  createCart = async (cart) => {
+  getByIdPopulate = async (id) => {
     try {
-      const cart = await Cart.create(cart);
+      const cart = await cartsModel
+        .findOne({ _id: id })
+        .populate("products.product");
       return cart;
-    } catch (error) {
-      console.log(error);
-      return null;
+    } catch (e) {
+      throw new Error("Fail getting cart by id");
     }
   };
 
-  updateCart = async (id) => {
+  create = async (cart) => {
     try {
-      const result = await Cart.updateOne({ _id: id }, { $set: Cart });
-      return result;
-    } catch (error) {
-      console.log(error);
-      return null;
+      const newCart = await cartsModel.create(cart);
+      return newCart;
+    } catch (e) {
+      throw new Error("Fail creating cart");
     }
   };
-  getCartById = async (id) => {
+
+  update = async (id, newData) => {
     try {
-      const result = await Cart.findById({ _id: id });
+      const result = await cartsModel.updateOne({ _id: id }, { $set: newData });
       return result;
-    } catch (error) {
-      console.log(error);
-      return null;
+    } catch (e) {
+      throw new Error("Fail updating product");
+    }
+  };
+
+  delete = async (id) => {
+    try {
+      const result = await cartsModel.deleteOne({ _id: id });
+      return result;
+    } catch (e) {
+      throw new Error("Fail deleting product");
     }
   };
 

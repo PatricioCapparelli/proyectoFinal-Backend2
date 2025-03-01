@@ -57,13 +57,8 @@ export const createUser = async (req, res) => {
   }
 };
 
-export const renderLogin = async (req, res) => {
-  res.render("login", { title: "Login" });
-}
 
-export const getCurrentUser = async (req, res) => {
-  console.log("Que onda");
-
+export const getCurrentUser = (req, res) => {
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       console.log("Error de autenticación:", err);
@@ -76,13 +71,10 @@ export const getCurrentUser = async (req, res) => {
     }
 
     console.log("Usuario autenticado:", user);
-    return res.status(200).json({
-      status: "success",
-      message: "Usuario autenticado correctamente",
-      user
-    });
+    return res.status(200).json({ message: 'Usuario autenticado', user });
   })(req, res);
 };
+
 
 export const loginUser = async (req, res, next) => {
   passport.authenticate('login', (err, user, info) => {
@@ -120,7 +112,7 @@ export const recoverPass = async (req, res) => {
       subject: "Recuperar contraseña",
       html: ` <div>
                 <h1>Recuperar contraseña</h1>
-                <p>HOLA!!, ${email} INGRESE a ese link para recuperar tu contraseña:</p>
+                <p>HOLA!!, ${email}, INGRESE al link para recuperar su contraseña:</p>
                 <a href="www.google.com">Recuperar password</a>
               </div>
               `
@@ -130,4 +122,24 @@ export const recoverPass = async (req, res) => {
   } catch (e) {
     res.status(500).json({ status: "error", message: e.message });
   }
+};
+
+export const renderLogin = async (req, res) => {
+  res.render("login", { title: "Login" });
+};
+
+export const error404 = async (req, res) => {
+  res.status(404).render("404error", { title: "error 404" });
+};
+
+export const renderHome = async (req, res) => {
+  res.render("home", { title: "HOME" });
+};
+
+export const renderRegister = async (req, res) => {
+  res.render("register", { title: "REGISTER" });
+};
+
+export const renderCurrent = async (req, res) => {
+  res.render("current", { title: "CURRENT", user: req.user });
 };

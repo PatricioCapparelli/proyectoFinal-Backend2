@@ -3,14 +3,14 @@
     <form action="/api/sessions/register" method="post">
         <div>
             <div>
-                <label for="name">Name</label>
+                <label for="nombre">Name</label>
                 <br />
-                <input id="name" name="name" placeholder="Juan" />
+                <input id="name" name="nombre" placeholder="Juan" />
             </div>
             <div>
-                <label for="last_name">Last Name</label>
+                <label for="apellido">Last Name</label>
                 <br />
-                <input id="last_name" name="last_name" placeholder="Perez" />
+                <input id="apellido" name="apellido" placeholder="Perez" />
             </div>
             <div>
                 <label for="email">Email</label>
@@ -18,15 +18,20 @@
                 <input type="email" id="email" name="email" placeholder="example@mail.com" />
             </div>
             <div>
-                <label for="password">Password</label>
+                <label for="contraseña">Password</label>
                 <br />
-                <input type="password" id="password" name="password" placeholder="12345" autocomplete="additional-name"/>
+                <input type="contraseña" id="contraseña" name="contraseña" placeholder="12345" autocomplete="additional-name"/>
             </div>
             <div>
-                <label for="age">Age</label>
+                <label for="edad">Age</label>
                 <br />
-                <input type="Number" id="age" name="age" placeholder="20" min="1" />
+                <input type="Number" id="edad" name="edad" placeholder="20" min="1" />
             </div>
+            <label for="rol">Rol</label>
+                <select id="rol" name="rol">
+                    <option value="user">Usuario</option>
+                    <option value="admin">Administrador</option>
+                </select>
             <br />
             <button type="submit">Registrar</button>
             <a href="/api/sessions/auth/google" class="btn-google">Registrar con Google</a>

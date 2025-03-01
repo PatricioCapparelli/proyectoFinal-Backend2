@@ -31,7 +31,7 @@ const corsOptions = {
   credentials: true,
 };
 
-const secret = "myPass1234";
+const secret = process.env.SECRET_PASSWORD;
 
 connectDb();
 
@@ -40,6 +40,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.use("/api/public", express.static(paths.public));
+app.use(express.static(paths.front));
+
 app.use(cookieParser());
 app.use(
   session({

@@ -1,7 +1,7 @@
 import { cookieExtractor } from "../config/passport.config.js";
 import { authToken } from "../utils/jwt.js";
 
-const handlePolice = (role) => {
+export const handlePolice = (role) => {
   return (req, res, next) => {
     const token = cookieExtractor(req);
     if (!token)
@@ -27,4 +27,3 @@ const handlePolice = (role) => {
   };
 };
 
-export default handlePolice;

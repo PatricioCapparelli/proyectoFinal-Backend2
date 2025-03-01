@@ -4,25 +4,24 @@ import Product from "../DAO/classes/products.dao.js";
 const cartService = new Cart();
 const productService = new Product();
 
-
-const findAll = async () => {
+export const findAll = async () => {
   const carts = await cartService.getAll();
   return carts;
 };
 
-const findOneById = async (id) => {
+export const findOneById = async (id) => {
   const cart = await cartService.getById(id);
   return cart;
 };
 
 
-const findOneByIdPopulate = async (id) => {
+export const findOneByIdPopulate = async (id) => {
   const cart = await cartService.getByIdPopulate(id);
   return cart;
 };
 
 
-const updateOneById = async (id, newData) => {
+export const updateOneById = async (id, newData) => {
   const cartFound = await cartService.getById(id);
 
   const { products, total } = newData;
@@ -36,7 +35,7 @@ const updateOneById = async (id, newData) => {
   return result;
 };
 
-const addOneProductToCartById = async (cartId, productId) => {
+export const addOneProductToCartById = async (cartId, productId) => {
   const cartFound = await cartService.getById(cartId);
 
   const productFound = await productService.getById(productId);
@@ -71,7 +70,7 @@ const addOneProductToCartById = async (cartId, productId) => {
   return result;
 };
 
-const deleteOneProductOnCartById = async (cartId, productId) => {
+export const deleteOneProductOnCartById = async (cartId, productId) => {
   const cartFound = await cartService.getById(cartId);
 
   const productFound = await productService.getById(productId);
@@ -91,12 +90,10 @@ const deleteOneProductOnCartById = async (cartId, productId) => {
     total: cartTotal,
   });
 
-
-
   return result;
 };
 
-const deleteAllProductsOnCart = async (cartId) => {
+export const deleteAllProductsOnCart = async (cartId) => {
   const cartFound = await cartService.getById(cartId);
 
   cartFound.products = [];
@@ -107,24 +104,12 @@ const deleteAllProductsOnCart = async (cartId) => {
   return result;
 };
 
-const createOne = async (userId) => {
+export const createCart = async (userId) => {
   const newCart = await cartService.create({ user: userId });
   return newCart;
 };
 
-const deleteOneById = async (id) => {
+export const deleteOneById = async (id) => {
   const result = await cartService.delete(id);
   return result;
-};
-
-export default {
-  findAll,
-  findOneById,
-  updateOneById,
-  createOne,
-  deleteOneById,
-  addOneProductToCartById,
-  deleteOneProductOnCartById,
-  findOneByIdPopulate,
-  deleteAllProductsOnCart,
 };

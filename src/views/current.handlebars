@@ -1,9 +1,19 @@
 <section class="container">
     <h1>{{title}}</h1>
+    <p id="p">toka</p>
     <div>
-        <p>Nombre: {{user.nombre}} {{user.apellido}}</p>
+        <p>Nombre: {{user.name}} {{user.last_name}}</p>
         <p>Email: {{user.email}}</p>
-        <p>Role: {{user.rol}}</p>
+        <p>Role: {{user.role}}</p>
+
+        <div class="user-container">
+            <h3>Usuarios</h3>
+            <ul id="user-list"></ul>
+        </div>
+
+        <button type="submit" id="fetch-users">Solicitar usuarios</button>
+
         <a href="/">Volver</a>
     </div>
 </section>
+<script src="/js/main.js"></script>

@@ -1,22 +1,24 @@
 import jwt from "jsonwebtoken";
 
-const secret = "jwt-key"
+const secret = process.env.SECRET_JWT;
 
 export const generateToken = (user) => {
     return jwt.sign({ user }, secret, { expiresIn:"15m" });
 };
 
 export const authToken = (req, res, next) => {
-    console.log("Token recibido:", req.headers.authorization);
-    const authHeader = req.headers.authorization;
-    if(!authHeader) return res.status(401).send({ error: "No autenticado" });
-    const token = authHeader.split(' ')[1]
+    const token = req.cookies.token;
 
-    console.log(token);
+    if (!token) {
+        return res.status(401).send({ error: "No autenticado" });
+    }
+
     jwt.verify(token, secret, (error, credentials) => {
-        if(error) return res.status(403).send({ error: "No autorizado" });
+        if (error) {
+            return res.status(403).send({ error: "No autorizado" });
+        }
 
-        req.user = credentials.user
-        next()
+        req.user = credentials.user;
+        next();
     });
 };
