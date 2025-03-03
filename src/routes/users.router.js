@@ -1,10 +1,10 @@
 import { Router } from "express";
-import {handlePolice} from "../middlewares/handle-policies.js";
+import { handlePolice } from "../middlewares/handle-policies.js";
 import { loginUser, getUsers, getUserById, createUser } from "../controllers/users.controller.js";
 
 const router = Router();
 
-router.get("/all", handlePolice(["admin"]), getUsers);
+router.get("/", /* handlePolice("admin") */ getUsers);
 
 router.post("/login" , loginUser);
 

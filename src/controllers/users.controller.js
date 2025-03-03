@@ -95,7 +95,7 @@ export const loginUser = async (req, res, next) => {
         Credentials: true,
       });
 
-      return res.redirect('/current');
+      return res.redirect('/api/views/current');
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: 'Error interno del servidor' });

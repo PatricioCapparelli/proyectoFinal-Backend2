@@ -2,11 +2,6 @@ const getbutton = document.querySelector('#fetch-users');
 const form = document.querySelector("#create-user");
 const lista_de_usuarios = document.getElementById('user-list');
 
-const p = document.getElementById('p')
-p.addEventListener('click', () => {
-  console.log("que onda");
-})
-
 getbutton.addEventListener("click", () => {
   fetch("http://localhost:3000/api/users/",{
     method: "GET",
@@ -70,7 +65,7 @@ form.addEventListener("submit", (e) => {
 
         if (token) {
             localStorage.setItem('token', token);
-            window.location.href = "http://localhost:3000/login";
+            window.location.href = "http://localhost:3000/api/views/login";
         }
     } else {
         console.error("Error en la creación del usuario:", data.message || "Error desconocido");
