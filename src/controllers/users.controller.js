@@ -103,6 +103,33 @@ export const loginUser = async (req, res, next) => {
   })(req, res, next);
 };
 
+export const renderGoogle = async (req, res, next) => {
+  passport.authenticate('google', {
+    scope: ['profile', 'email']
+  })
+};
+
+
+export const callbackGoogle = async (req, res, next) => {
+  passport.authenticate('google', { failureRedirect: '/login' }, (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.redirect('/login');
+    }
+
+    req.login(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.redirect('/profile');
+    });
+  })(req, res, next);
+};
+
+
+
 export const recoverPass = async (req, res) => {
   const { email } = req.body;
   try {

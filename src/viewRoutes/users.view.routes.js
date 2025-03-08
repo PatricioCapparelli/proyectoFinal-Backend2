@@ -6,7 +6,10 @@ import {
      error404,
      renderHome,
      renderRegister,
-     renderCurrent } from "../controllers/users.controller.js";
+     renderCurrent,
+     renderGoogle,
+     callbackGoogle
+ } from "../controllers/users.controller.js";
 import { authToken } from "../utils/jwt.js";
 
 const router = Router();
@@ -22,6 +25,10 @@ router.get("/recover", recoverPass)
 router.get("/", renderHome);
 
 router.get("/register", renderRegister);
+
+router.get('/auth/google', renderGoogle);
+
+router.get('/auth/google/callback', callbackGoogle);
 
 router.get("*", error404);
 

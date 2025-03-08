@@ -3,8 +3,8 @@ dotenv.config();
 
 import express from "express";
 import { connectDb } from "./config/mongoose.config.js";
+import { config as configHandlebars } from "./config/handlebars.config.js";
 import cookieParser from "cookie-parser";
-import { engine } from 'express-handlebars';
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import paths from "./utils/path.js";
@@ -22,9 +22,7 @@ import viewRoutes from "./viewRoutes/users.view.routes.js";
 const app = express();
 app.set("PORT", process.env.PORT);
 
-app.engine('handlebars', engine());
-app.set('view engine', 'handlebars');
-app.set('views', paths.views);
+configHandlebars(app);
 
 const corsOptions = {
   origin: ["http://127.0.0.1:5500"],

@@ -107,26 +107,35 @@ const initializePassport = async () => {
         clientID: process.env.SECRET_CLIENT_ID_GOOGLE,
         clientSecret: process.env.SECRET_CLIENT_KEY,
         callbackURL: 'http://localhost:3000/auth/google/callback'
-    }, async (accesToken, refreshToken, profile, done) => {
+      }, async (accessToken, refreshToken, profile, done) => {
         try {
-            const userFound = await user.getUserByGoogle({ email: profile.emails[0]?.value });
-            if (userFound) {
-                return done(null, userFound);
-            }
+          const userFound = await usersService.getByEmail({ email: profile.emails[0]?.value });
 
-            const newUser = {
-                name: profile.name.givenName || "",
-                last_name: profile.name.familyName || "",
-                email: profile.emails[0]?.value || "",
-                password: "",
-            }
-            const user = await user.createUser(newUser);
-            return done(null, user);
+          if (userFound) {
+
+            userFound.googleAccessToken = accessToken;
+            userFound.googleRefreshToken = refreshToken;
+            await userFound.save();
+            return done(null, userFound);
+          }
+
+
+          const newUser = {
+            name: profile.name.givenName || "",
+            last_name: profile.name.familyName || "",
+            email: profile.emails[0]?.value || "",
+            password: "",
+            googleAccessToken: accessToken,
+            googleRefreshToken: refreshToken,
+          };
+
+          const user = await user.createUser(newUser);
+          return done(null, user);
         } catch (error) {
-            return done(error);
+          return done(error);
         }
-    })
-    );
+      }));
+
 
     passport.serializeUser((user, done) => {
         done(null, user.email);
