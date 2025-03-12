@@ -103,30 +103,36 @@ export const loginUser = async (req, res, next) => {
   })(req, res, next);
 };
 
-export const renderGoogle = async (req, res, next) => {
-  passport.authenticate('google', {
-    scope: ['profile', 'email']
-  })
-};
+
+export const renderGoogle = (req, res, next) => {
+  return passport.authenticate("google", {
+    scope: ["profile", "email"],
+  })(req, res, next)
+}
 
 
-export const callbackGoogle = async (req, res, next) => {
-  passport.authenticate('google', { failureRedirect: '/login' }, (err, user, info) => {
+export const callbackGoogle = (req, res, next) => {
+  passport.authenticate("google", { failureRedirect: "/login" }, (err, user, info) => {
     if (err) {
-      return next(err);
-    }
-    if (!user) {
-      return res.redirect('/login');
-    }
+      return next(err)
+    };
 
-    req.login(user, (err) => {
-      if (err) {
-        return next(err);
-      }
-      return res.redirect('/profile');
-    });
-  })(req, res, next);
-};
+    if (!user) {
+      return res.redirect("/login")
+    };
+
+    const token = generateToken(user);
+
+      res.cookie('token', token, {
+        httpOnly: true,
+        maxAge: 36000,
+        Credentials: true,
+      });
+
+    return res.redirect('/api/views/current');
+
+  })(req, res, next)
+}
 
 
 

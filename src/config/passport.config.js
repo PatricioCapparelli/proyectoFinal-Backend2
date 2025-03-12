@@ -4,6 +4,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth2";
 import User from "../DAO/classes/users.dao.js";
 import { usersService } from "../repositories/index.js";
 
+
 import jwt from "passport-jwt";
 import { createHash, isValidPassword } from "../utils/bcrypt.js";
 import usersModel from "../DAO/models/users.model.js";
@@ -12,7 +13,7 @@ const LocalStrategy = local.Strategy;
 const jwtStrategy = jwt.Strategy;
 const extractJwt = jwt.ExtractJwt;
 
-const user = new User();
+let user = new User();
 
 let usersServices;
 
@@ -109,16 +110,11 @@ const initializePassport = async () => {
         callbackURL: 'http://localhost:3000/auth/google/callback'
       }, async (accessToken, refreshToken, profile, done) => {
         try {
-          const userFound = await usersService.getByEmail({ email: profile.emails[0]?.value });
+            const userFound = await usersModel.findOne({ email: profile.emails[0]?.value})
 
           if (userFound) {
-
-            userFound.googleAccessToken = accessToken;
-            userFound.googleRefreshToken = refreshToken;
-            await userFound.save();
-            return done(null, userFound);
+            return done(null, userFound)
           }
-
 
           const newUser = {
             name: profile.name.givenName || "",
@@ -129,7 +125,8 @@ const initializePassport = async () => {
             googleRefreshToken: refreshToken,
           };
 
-          const user = await user.createUser(newUser);
+          const user = await usersModel.create(newUser);
+          console.log(user);
           return done(null, user);
         } catch (error) {
           return done(error);

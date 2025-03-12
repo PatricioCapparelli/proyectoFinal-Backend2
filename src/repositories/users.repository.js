@@ -26,8 +26,8 @@ export default class UsersRepository {
     }
 }
 
-  async getByEmail(email) {
-    const user = await this.userDAO.getByEmail(email);
+  async getByEmail({email}) {
+    const user = await this.userDAO.getByEmail({email});
     return user ? new UserDTO(user) : null;
   }
 }

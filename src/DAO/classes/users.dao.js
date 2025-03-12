@@ -34,11 +34,10 @@ export default class UserDAO {
 
   async getByEmail(email) {
     try {
-      const user = await UserModel.findOne({ email });
+      const user = await UserModel.findOne({ email: typeof email === 'object' ? email.email : email });
       return user;
-    } catch (error) {
-      console.error('Error al obtener el usuario por correo:', error);
-      throw error;
+    } catch(error) {
+      throw new error;
     }
   }
 

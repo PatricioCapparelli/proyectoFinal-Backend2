@@ -17,10 +17,11 @@ import userRoutes from "./routes/users.router.js";
 import productRoutes from "./routes/product.router.js";
 import cartRoutes from "./routes/cart.router.js";
 import viewRoutes from "./viewRoutes/users.view.routes.js";
+import { callbackGoogle } from "./controllers/users.controller.js";
 
 // Settings
 const app = express();
-app.set("PORT", process.env.PORT);
+app.set("PORT", process.env.PORT || 8080);
 
 configHandlebars(app);
 
@@ -60,6 +61,7 @@ app.use(passport.session());
 
 
 // Routes
+app.use("/auth/google/callback", callbackGoogle)
 app.use("/api/views", viewRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
